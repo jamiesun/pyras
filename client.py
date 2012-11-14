@@ -129,7 +129,7 @@ class ClientApp():
                 self.session = win32ras.Dial(
                     None, 
                     RASFILE, 
-                    ("pyras", "", "", "username", "password", ""), 
+                    ("pyras", "", "", username, passwd, ""), 
                     None
                 )
             except Exception, e:
