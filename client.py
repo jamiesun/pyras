@@ -159,7 +159,7 @@ class ClientApp():
    
 if __name__ == '__main__':
     master = Tk()
-    master.title("湖南中医药大学宽带客户端")
+    master.title("宽带客户端")
     master.maxsize(335,280)
     master.minsize(335,280)
     client = ClientApp(master)
