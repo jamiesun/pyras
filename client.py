@@ -4,11 +4,40 @@ from __future__ import unicode_literals
 import os
 import win32ras
 import threading
+import StringIO
 import config
 from Tkinter import *
 from tkMessageBox import askokcancel
 
+KEY = '!@#$%^'
+KLEN = 6
+
+def encrypt(src):
+    output = StringIO.StringIO()   
+    for i in range(len(src)):
+        key = KEY[i%KLEN]
+        ch = ord(src[i]) ^ ord(key)
+        ihex = hex(ch).upper()
+        if '0X' in ihex:
+            ihex = ihex[2:]
+        output.write(ihex)
+    return output.getvalue()
+
+
+def decrypt(dest):
+    output = StringIO.StringIO()
+    if len(dest)%2 != 0:
+        dest  = "0" + dest
+    for i in range(0,len(dest),2):
+        key = KEY[(i/2)%KLEN]
+        b = int(dest[i+1],16)
+        b = b + 16 * int(dest[i],16)
+        b = b ^ ord(key)
+        output.write(chr(b))
+    return output.getvalue()   
+
 RASFILE = 'ras.cfg'
+USERDATA = 'user.data'
 
 class ClientApp():
 
@@ -49,15 +78,31 @@ class ClientApp():
         self.dicconnect.pack(side=RIGHT, padx=5, pady=5)     
         self.connect.pack(side=RIGHT, padx=5, pady=5)
         self.savepass.pack(side=RIGHT, padx=5, pady=5)   
-
-        self.init_config() 
-
+        try:
+            self.init_config() 
+        except:
+            raise
+    
         self.master.protocol("WM_DELETE_WINDOW",self.exit_handle)
 
     def init_config(self):
         if not os.path.exists(RASFILE):
             with open(RASFILE,'wb') as rsfile:
                 rsfile.write(config.rascfg)
+
+        if os.path.exists(USERDATA):
+            with open(USERDATA,'rb') as udfile:
+                content = udfile.read().strip()
+                if content:
+                    name,pwd,isave = decrypt(content).split(":")
+                    self.username_val.set(name)
+                    self.password_val.set(pwd)
+                    self.savepass_val.set(int(isave))
+
+
+    def save_user(self,name,pwd,isave):
+        with open(USERDATA,'wb') as udfile:
+            udfile.write(encrypt("%s:%s:%s"%(name,pwd,isave)))     
 
     def check_conn(self):
         if self.session is None:
@@ -79,6 +124,7 @@ class ClientApp():
             savepass = self.savepass_val.get()
 
             try:
+                self.save_user(username,passwd,savepass)
                 win32ras.SetEntryDialParams(RASFILE,("pyras", "", "", username, passwd, ""),savepass)
                 self.session = win32ras.Dial(
                     None, 
@@ -113,7 +159,7 @@ class ClientApp():
    
 if __name__ == '__main__':
     master = Tk()
-    master.title("宽带拨号器")
+    master.title("湖南中医药大学宽带客户端")
     master.maxsize(335,280)
     master.minsize(335,280)
     client = ClientApp(master)
