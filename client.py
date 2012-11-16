@@ -77,13 +77,11 @@ class ClientApp():
         self.disconnect.pack(side=RIGHT, padx=5, pady=5)     
         self.connect.pack(side=RIGHT, padx=5, pady=5)
         self.savepass.pack(side=RIGHT, padx=5, pady=5)   
-        try:
-            self.init_config() 
-        except:
-            pass
-    
         self.master.protocol("WM_DELETE_WINDOW",self.exit_handle)
-
+        try:
+            self.init_config()
+        except: pass
+        
     def init_config(self):
         """ 初始化配置数据 """
         rsfile = open(RASFILE,'wb')
@@ -100,13 +98,10 @@ class ClientApp():
                 self.password_val.set(pwd)
                 self.savepass_val.set(int(isave))
 
-
-
     def save_user(self,name,pwd,isave):
         """ 保存用户数据 """
         udfile = open(USERDATA,'wb')
-        if self.savepass_val.get() == 0:
-            pwd = ''
+        if self.savepass_val.get() == 0:pwd =''
         udfile.write(encrypt("%s:%s:%s"%(name,pwd,isave)))  
         udfile.close()   
 
@@ -118,13 +113,9 @@ class ClientApp():
             self.disconnect_ras()
             showwarning(u"警告",u"检测到您使用了代理软件，网络被断开")
 
-
-
     def check_conn(self):
         """ 异步检查连接是否成功，ui线程调用 """
-        if self.session is None:
-            self.master.after(500, self.check_conn)
-        else:
+        if self.session:
             if self.session[0] == 0:
                 self.info(u"网络连接失败，错误代码：%s"%self.session[0])
                 self.connect.config(state=NORMAL)
@@ -141,6 +132,9 @@ class ClientApp():
                     #启动代理检测
                     self.ckp_task = ChkProxy()
                     self.check_proxy()
+        else:
+            self.master.after(500, self.check_conn)
+
 
                     
     def connect_ras(self):
@@ -151,13 +145,13 @@ class ClientApp():
         if not username or not passwd:
             self.info(u"帐号和密码不能为空")
             return
+
         def _connect():
             try:
                 self.save_user(username,passwd,savepass)
                 win32ras.SetEntryDialParams(RASFILE,("pyras", "", "", username, passwd, ""),savepass)
                 self.session = win32ras.Dial(None,RASFILE,("pyras", "", "", username, passwd, ""),None)
-            except:
-                pass
+            except:pass
 
         self.info(u"正在连接，请稍候...")
         self.connect.config(state=DISABLED)
@@ -169,21 +163,12 @@ class ClientApp():
         """ 断开连接 """
         if self.ckp_task:
             self.ckp_task.stop()
-        if self.session:
-            try:
-                win32ras.HangUp(self.session[0])
-            except Exception, e:
-                print e
-            self.session = None
-
         conns = win32ras.EnumConnections()
         if conns:
             for conn in conns:
-                try:
-                    win32ras.HangUp(conn[0])
+                try:win32ras.HangUp(conn[0])
                 except:pass
-                
-
+        self.session = None
 
     def disconnect_ras(self):
         self._disconnect_ras()
@@ -210,7 +195,6 @@ class ChkProxy(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.ipaddrs = socket.gethostbyname_ex(socket.gethostname())[2]
-        print self.ipaddrs
         self.is_proxy = False
         self.running = True
         self.start()
@@ -231,9 +215,8 @@ class ChkProxy(threading.Thread):
                     if _get_type(p.data.data)== "TCP":
                         data = p.data.data.data
                         if dstip in self.ipaddrs:
-                            if data.startswith("GET") \
-                                or data.startswith("POST"):
-                                    self.is_proxy = True
+                            if data.startswith("GET") or data.startswith("POST"):
+                                self.is_proxy = True
             except:
                 pass
 
