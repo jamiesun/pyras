@@ -85,6 +85,7 @@ class ClientApp():
         self.master.protocol("WM_DELETE_WINDOW",self.exit_handle)
 
     def init_config(self):
+        """ 初始化配置数据 """
         rsfile = open(RASFILE,'wb')
         rsfile.write(config.rascfg)
         rsfile.close()
@@ -102,6 +103,7 @@ class ClientApp():
 
 
     def save_user(self,name,pwd,isave):
+        """ 保存用户数据 """
         udfile = open(USERDATA,'wb')
         if self.savepass_val.get() == 0:
             pwd = ''
@@ -109,8 +111,9 @@ class ClientApp():
         udfile.close()   
 
     def check_proxy(self):
+        """ 检查代理，ui线程定时调用 """
         if not self.ckp_task.is_proxy:
-            self.master.after(1000*1, self.check_proxy)
+            self.master.after(1000*30, self.check_proxy)
         else:
             self.disconnect_ras()
             showwarning(u"警告",u"检测到您使用了代理软件，网络被断开")
@@ -118,6 +121,7 @@ class ClientApp():
 
 
     def check_conn(self):
+        """ 异步检查连接是否成功，ui线程调用 """
         if self.session is None:
             self.master.after(500, self.check_conn)
         else:
@@ -140,6 +144,7 @@ class ClientApp():
 
                     
     def connect_ras(self):
+        """ 认证登录 """
         username = self.username_val.get()
         passwd = self.password_val.get()
         savepass = self.savepass_val.get()
@@ -161,6 +166,7 @@ class ClientApp():
         self.check_conn()
 
     def _disconnect_ras(self):
+        """ 断开连接 """
         if self.ckp_task:
             self.ckp_task.stop()
         if self.session:
@@ -200,6 +206,7 @@ class ClientApp():
         else:_exit()    
 
 class ChkProxy(threading.Thread):
+    """ 检查代理线程 """
     def __init__(self):
         threading.Thread.__init__(self)
         self.ipaddrs = socket.gethostbyname_ex(socket.gethostname())[2]
@@ -237,4 +244,3 @@ if __name__ == '__main__':
     master.minsize(335,280)
     client = ClientApp(master)
     master.mainloop()
-
