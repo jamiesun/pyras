@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/">
+    <file>net.png</file>
+    <file>client.ico</file>
+  </qresource>
+</RCC>

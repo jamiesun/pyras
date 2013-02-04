@@ -1,0 +1,38 @@
+VSVersionInfo(
+    ffi=FixedFileInfo(
+		filevers=(96, 12, 19, 1), 
+		prodvers=(4, 1, 2, 1),
+ 		mask=0x3f, 
+		flags=0x0, 
+		OS=0x40004, 
+		fileType=0x1, 
+		subtype=0x0, 
+		date=(0, 0)
+	), 
+    kids=[
+	StringFileInfo(
+	    [
+		StringTable(
+		    '040904b0', 
+		    [
+			StringStruct('Comments', 'Designed and coded by lingya'), 
+			StringStruct('CompanyName', 'lingya'), 
+			StringStruct('FileDescription', 'pppoe client'), 
+			StringStruct('FileVersion', '96, 12, 19, 1'), 
+			StringStruct('InternalName', 'pyras'), 
+			StringStruct('LegalCopyright', 'Copyright 2013 lingya'), 
+			StringStruct('LegalTrademarks', ''), 
+			StringStruct('OriginalFilename', 'client.exe'), 
+			StringStruct('ProductName', 'pppoe-client'), 
+			StringStruct('ProductVersion', '1, 0, 0, 0')
+		    ]
+		)
+	    ]
+	),
+	VarFileInfo(
+	    [
+		VarStruct('Translation', [1033, 1200])
+	    ]
+	)
+    ]
+)
