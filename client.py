@@ -36,6 +36,8 @@ def decrypt(dest):
 RASFILE = 'ras.cfg'
 USERDATA = '%s/rasuser.data'%os.path.expanduser('~')
 
+
+
 class ClientApp():
 
     session = None
